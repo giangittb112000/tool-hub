@@ -118,11 +118,28 @@ app.use(
   }),
 );
 
-// Resolve the public directory
-const isCompiled = !process.argv[0].includes("bun");
-const publicDir = isCompiled
-  ? join(dirname(process.argv[0]), "public")
-  : join(import.meta.dir, "../../../apps/client/dist");
+// Resolve the public directory by checking multiple possible locations
+const findPublicDir = (): string => {
+  const candidates = [
+    // 1. Production: public/ next to the binary
+    join(dirname(process.execPath), "public"),
+    // 2. Production: public/ in CWD (for LaunchAgent with WorkingDirectory)
+    join(process.cwd(), "public"),
+    // 3. Production: ~/.toolhub/public (hardcoded fallback)
+    join(process.env.HOME || "~", ".toolhub", "public"),
+    // 4. Dev mode: apps/client/dist (relative to source file)
+    join(import.meta.dir, "../../client/dist"),
+  ];
+
+  for (const dir of candidates) {
+    if (existsSync(join(dir, "index.html"))) {
+      return dir;
+    }
+  }
+  return candidates[0]; // fallback
+};
+
+const publicDir = findPublicDir();
 
 // MIME type mapping
 const MIME_TYPES: Record<string, string> = {
