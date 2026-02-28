@@ -29,23 +29,29 @@ echo "📥 Downloading ToolHub binary..."
 curl -L "$DOWNLOAD_URL" -o "$BINARY_PATH"
 chmod +x "$BINARY_PATH"
 
-# Setup PATH
-SHELL_CONFIG=""
-if [[ "$SHELL" == */zsh ]]; then
-    SHELL_CONFIG="$HOME/.zshrc"
-elif [[ "$SHELL" == */bash ]]; then
-    SHELL_CONFIG="$HOME/.bashrc"
-fi
+# Setup PATH & Alias
+SHELL_TYPE=$(basename "$SHELL")
+CONFIG_FILES=()
 
-if [ -n "$SHELL_CONFIG" ]; then
-    if ! grep -q "$INSTALL_DIR" "$SHELL_CONFIG"; then
-        echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$SHELL_CONFIG"
-        echo "✅ Added $INSTALL_DIR to PATH in $SHELL_CONFIG"
+case "$SHELL_TYPE" in
+    zsh)  CONFIG_FILES=("$HOME/.zshrc") ;;
+    bash) CONFIG_FILES=("$HOME/.bashrc" "$HOME/.bash_profile") ;;
+    *)    CONFIG_FILES=("$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile") ;;
+esac
+
+echo "🔧 Configuring shell path..."
+for CONFIG in "${CONFIG_FILES[@]}"; do
+    if [ -f "$CONFIG" ]; then
+        # Add to PATH if not present
+        if ! grep -q "$INSTALL_DIR" "$CONFIG"; then
+            echo "" >> "$CONFIG"
+            echo "# ToolHub Path" >> "$CONFIG"
+            echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$CONFIG"
+            echo "alias toolhub=\"$BINARY_PATH\"" >> "$CONFIG"
+            echo "✅ Updated $CONFIG"
+        fi
     fi
-fi
-
-echo "✅ Installation complete: $BINARY_PATH"
-echo "🚀 You can now run 'toolhub' from your terminal (you may need to restart your terminal)."
+done
 
 if [ "$OS" = "Darwin" ]; then
   # macOS LaunchAgent setup
@@ -79,9 +85,27 @@ if [ "$OS" = "Darwin" ]; then
 </dict>
 </plist>
 EOF
-
-  # We don't load it automatically - user must run 'toolhub start'
-  echo "🎉 ToolHub installed successfully!"
-  echo "⚠️ Status: Stopped"
-  echo "👉 To start the service, run: toolhub start"
 fi
+
+# Final Message
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🎉 ToolHub Installation Successful!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+if [ "$OS" = "Darwin" ]; then
+    ACTIVE_CMD="source $([ -f "$HOME/.zshrc" ] && echo "~/.zshrc" || echo "~/.bashrc")"
+    echo "🍎 macOS Detected"
+    echo "👉 COPY & PASTE this to start using ToolHub now:"
+    echo "   $ACTIVE_CMD && toolhub --help"
+elif [ "$OS" = "Linux" ]; then
+    echo "🐧 Linux Detected"
+    echo "👉 COPY & PASTE this to start using ToolHub now:"
+    echo "   source ~/.bashrc && toolhub --help"
+fi
+
+echo ""
+echo "🪟 If you are using Windows (PowerShell):"
+echo "   New-Item -ItemType SymbolLink -Path \"C:\\Windows\\System32\\toolhub.exe\" -Target \"(path to toolhub-win.exe)\""
+echo "   (Or add the directory containing ToolHub to your Environment Variables PATH)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
