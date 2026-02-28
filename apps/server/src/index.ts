@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { serveStatic } from "hono/bun";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { registry } from "./core/registry";
@@ -104,6 +103,9 @@ if (command && cliCommands[command]) {
 }
 
 // ─── Server Mode ────────────────────────────────────────────
+import { dirname, join, extname } from "node:path";
+import { existsSync } from "node:fs";
+
 const app = new Hono();
 
 app.use(
@@ -115,6 +117,27 @@ app.use(
     exposeHeaders: ["*"],
   }),
 );
+
+// Resolve the public directory
+const isCompiled = !process.argv[0].includes("bun");
+const publicDir = isCompiled
+  ? join(dirname(process.argv[0]), "public")
+  : join(import.meta.dir, "../../../apps/client/dist");
+
+// MIME type mapping
+const MIME_TYPES: Record<string, string> = {
+  ".html": "text/html",
+  ".css": "text/css",
+  ".js": "application/javascript",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
+};
 
 // Register and start modules
 registry.register(systemModule);
@@ -131,13 +154,44 @@ const startCore = async () => {
   await registry.startAutorunModules();
   registry.applyRoutes(app);
 
-  // Serve Frontend static files (from ./public directory next to binary)
-  app.use("/*", serveStatic({ root: "./public" }));
-  app.get("*", serveStatic({ path: "./public/index.html" }));
+  // Serve Frontend: manual static file handler using absolute paths
+  app.get("*", async (c) => {
+    // Skip API routes
+    if (c.req.path.startsWith("/api")) {
+      return c.notFound();
+    }
+
+    // Try to serve the exact file
+    const filePath = join(
+      publicDir,
+      c.req.path === "/" ? "index.html" : c.req.path,
+    );
+    if (existsSync(filePath)) {
+      const file = Bun.file(filePath);
+      const ext = extname(filePath);
+      return new Response(file, {
+        headers: {
+          "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
+        },
+      });
+    }
+
+    // SPA Fallback: serve index.html for client-side routing
+    const indexPath = join(publicDir, "index.html");
+    if (existsSync(indexPath)) {
+      const file = Bun.file(indexPath);
+      return new Response(file, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+
+    return c.text("ToolHub API is running. Frontend not found.", 200);
+  });
 
   console.log(
     `[Core] ToolHub Server v${VERSION} is running on http://localhost:${port}`,
   );
+  console.log(`[Core] Serving frontend from: ${publicDir}`);
 };
 
 startCore();
