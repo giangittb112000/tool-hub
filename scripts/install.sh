@@ -37,13 +37,16 @@ fi
 echo "📥 Downloading ToolHub binary for $OS_TYPE..."
 curl -L "$DOWNLOAD_URL" -o "$BINARY_PATH"
 
-# Kiểm tra nếu file tải về là lỗi "Not Found" từ GitHub
-if grep -q "Not Found" "$BINARY_PATH"; then
-    echo "❌ Lỗi: Không tìm thấy file binary trên GitHub Release."
-    echo "👉 Nguyên nhân: Bạn có thể chưa upload file build vào mục Release trên GitHub hoặc sai tên file."
-    echo "👉 Giải quyết: Hãy kiểm tra tại https://github.com/$REPO/releases"
-    rm -f "$BINARY_PATH"
-    exit 1
+# Validate Download
+FILE_SIZE=$(wc -c < "$BINARY_PATH")
+if [ "$FILE_SIZE" -lt 1000000 ]; then
+    if grep -q "Not Found" "$BINARY_PATH" || grep -q "<html>" "$BINARY_PATH"; then
+        echo "❌ Lỗi: Không tìm thấy file binary trên GitHub Release (vừa tải về tệp lỗi HTML)."
+        echo "👉 Nguyên nhân: Bạn có thể chưa upload file build vào mục Release trên GitHub hoặc sai tên file."
+        echo "👉 Giải quyết: Hãy kiểm tra tại https://github.com/$REPO/releases"
+        rm -f "$BINARY_PATH"
+        exit 1
+    fi
 fi
 
 chmod +x "$BINARY_PATH"
