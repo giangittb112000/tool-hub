@@ -12,11 +12,15 @@ cd "$(dirname "$0")/.."
 
 # 1. Build Frontend
 echo "📦 Building Frontend..."
-bun run --filter "@toolhub/client" build
-
-# 2. Compile Server into Single Binary
+rm -rf dist
 mkdir -p dist
 
+if ! bun run --filter "@toolhub/client" build; then
+    echo "❌ Frontend build failed!"
+    exit 1
+fi
+
+# 2. Compile Server into Single Binary
 echo "🚀 Compiling for macOS (ARM64)..."
 bun build ./apps/server/src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/toolhub-macos
 
@@ -25,6 +29,12 @@ bun build ./apps/server/src/index.ts --compile --target=bun-linux-x64 --outfile 
 
 echo "🚀 Compiling for Windows (x64)..."
 bun build ./apps/server/src/index.ts --compile --target=bun-windows-x64 --outfile dist/toolhub-win.exe
+
+# Validation
+if [[ ! -f "dist/toolhub-macos" || ! -f "dist/toolhub-linux" || ! -f "dist/toolhub-win.exe" ]]; then
+    echo "❌ One or more binaries are missing in dist/!"
+    exit 1
+fi
 
 echo ""
 echo "✅ Build Complete!"

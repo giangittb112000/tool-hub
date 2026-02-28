@@ -12,6 +12,12 @@ export class SystemModule implements ToolHubModule {
 
   private ctx!: CoreContext;
 
+  private readonly REPO_URL = "https://github.com/giangittb112000/tool-hub";
+  private readonly INSTALL_SCRIPT_URL =
+    "https://raw.githubusercontent.com/giangittb112000/tool-hub/main/scripts/install.sh";
+  private readonly RAW_PKG_URL =
+    "https://raw.githubusercontent.com/giangittb112000/tool-hub/main/package.json";
+
   async onInit(ctx: CoreContext): Promise<void> {
     this.ctx = ctx;
     this.ctx.logger.info(`System Module v${this.version} initialized.`);
@@ -30,13 +36,13 @@ export class SystemModule implements ToolHubModule {
     app.get("/api/system/version", (c) => {
       return c.json({
         version: this.version,
-        repo: "https://github.com/giangittb112000/tool-hub",
+        repo: this.REPO_URL,
       });
     });
 
     app.post("/api/system/update", (c) => {
       this.ctx.logger.info("🚀 Update triggered from Web UI...");
-      const updateCmd = `curl -fsSL https://raw.githubusercontent.com/giangittb112000/tool-hub/main/scripts/install.sh | bash`;
+      const updateCmd = `curl -fsSL ${this.INSTALL_SCRIPT_URL} | bash`;
 
       exec(updateCmd, (err, stdout) => {
         if (err) {
@@ -53,9 +59,7 @@ export class SystemModule implements ToolHubModule {
 
     app.get("/api/system/check-update", async (c) => {
       try {
-        const res = await fetch(
-          "https://raw.githubusercontent.com/giangittb112000/tool-hub/main/package.json",
-        );
+        const res = await fetch(`${this.RAW_PKG_URL}?t=${Date.now()}`);
         const data: any = await res.json();
         const latestVersion = data.version;
 
@@ -63,7 +67,7 @@ export class SystemModule implements ToolHubModule {
           currentVersion: this.version,
           latestVersion: latestVersion,
           needsUpdate: latestVersion !== this.version,
-          updateCommand: `curl -fsSL https://raw.githubusercontent.com/giangittb112000/tool-hub/main/scripts/install.sh | bash`,
+          updateCommand: `curl -fsSL ${this.INSTALL_SCRIPT_URL} | bash`,
         });
       } catch (e) {
         return c.json({ error: "Failed to check for updates" }, 500);

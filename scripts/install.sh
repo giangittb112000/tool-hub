@@ -36,6 +36,16 @@ fi
 
 echo "📥 Downloading ToolHub binary for $OS_TYPE..."
 curl -L "$DOWNLOAD_URL" -o "$BINARY_PATH"
+
+# Kiểm tra nếu file tải về là lỗi "Not Found" từ GitHub
+if grep -q "Not Found" "$BINARY_PATH"; then
+    echo "❌ Lỗi: Không tìm thấy file binary trên GitHub Release."
+    echo "👉 Nguyên nhân: Bạn có thể chưa upload file build vào mục Release trên GitHub hoặc sai tên file."
+    echo "👉 Giải quyết: Hãy kiểm tra tại https://github.com/$REPO/releases"
+    rm -f "$BINARY_PATH"
+    exit 1
+fi
+
 chmod +x "$BINARY_PATH"
 
 # Setup PATH & Alias
@@ -45,20 +55,23 @@ case "$OS_TYPE" in
     Windows) CONFIG_FILES=("$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.zshrc") ;;
 esac
 
+# Clean up old installation
+rm -f "$BINARY_PATH" "$BINARY_PATH.exe"
+
 echo "🔧 Configuring shell path & alias..."
+MARKER="# --- ToolHub Configuration ---"
 for CONFIG in "${CONFIG_FILES[@]}"; do
     if [ -f "$CONFIG" ]; then
-        # Cập nhật PATH nếu chưa có
-        if ! grep -q "$INSTALL_DIR" "$CONFIG"; then
-            echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$CONFIG"
-            echo "✅ Added PATH to $CONFIG"
-        fi
+        # Remove old configuration block if exists
+        sed -i '' "/$MARKER/,/$MARKER/d" "$CONFIG" 2>/dev/null || sed -i "/$MARKER/,/$MARKER/d" "$CONFIG"
         
-        # Cập nhật Alias nếu chưa có
-        if ! grep -q "alias toolhub=" "$CONFIG"; then
-            echo "alias toolhub=\"$BINARY_PATH\"" >> "$CONFIG"
-            echo "✅ Added alias to $CONFIG"
-        fi
+        # Add new configuration block
+        echo "" >> "$CONFIG"
+        echo "$MARKER" >> "$CONFIG"
+        echo "export PATH=\"\$PATH:\$HOME/.toolhub\"" >> "$CONFIG"
+        echo "alias toolhub=\"\$HOME/.toolhub/toolhub\"" >> "$CONFIG"
+        echo "$MARKER" >> "$CONFIG"
+        echo "✅ Updated $CONFIG"
     fi
 done
 

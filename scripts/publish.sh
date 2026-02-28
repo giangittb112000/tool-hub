@@ -20,7 +20,10 @@ TAG="v$NEW_VERSION"
 
 # 3. Build the binary
 echo "📦 Building Frontend and Compiling Binary..."
-bash scripts/release.sh
+if ! bash scripts/release.sh; then
+    echo "❌ Build failed. Aborting publish."
+    exit 1
+fi
 
 # 4. Git Commit and Push
 echo "🐙 Committing changes to Git..."
@@ -44,6 +47,9 @@ echo "👉 FINAL STEP: You need to MANUALLY upload the binary."
 echo ""
 echo "1. Open: https://github.com/giangittb112000/tool-hub/releases/new?tag=$TAG"
 echo "2. Title: ToolHub $TAG"
-echo "3. DRAG & DROP this file: dist/toolhub-macos"
+echo "3. DRAG & DROP these files from 'dist/' folder:"
+echo "   - toolhub-macos    (for Mac users)"
+echo "   - toolhub-linux    (for Linux users)"
+echo "   - toolhub-win.exe  (for Windows users)"
 echo "4. Click 'Publish release'"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
