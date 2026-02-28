@@ -39,16 +39,19 @@ case "$SHELL_TYPE" in
     *)    CONFIG_FILES=("$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile") ;;
 esac
 
-echo "🔧 Configuring shell path..."
+echo "🔧 Configuring shell path & alias..."
 for CONFIG in "${CONFIG_FILES[@]}"; do
     if [ -f "$CONFIG" ]; then
-        # Add to PATH if not present
-        if ! grep -q "$INSTALL_DIR" "$CONFIG"; then
-            echo "" >> "$CONFIG"
-            echo "# ToolHub Path" >> "$CONFIG"
+        # Cập nhật PATH nếu chưa có
+        if ! grep -q "export PATH=.*$INSTALL_DIR" "$CONFIG"; then
             echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$CONFIG"
+            echo "✅ Added PATH to $CONFIG"
+        fi
+        
+        # Cập nhật Alias nếu chưa có (Rất quan trọng để nhận lệnh ngay)
+        if ! grep -q "alias toolhub=" "$CONFIG"; then
             echo "alias toolhub=\"$BINARY_PATH\"" >> "$CONFIG"
-            echo "✅ Updated $CONFIG"
+            echo "✅ Added alias to $CONFIG"
         fi
     fi
 done
