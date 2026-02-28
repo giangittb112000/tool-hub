@@ -15,14 +15,16 @@ echo "📦 Building Frontend..."
 bun run --filter "@toolhub/client" build
 
 # 2. Compile Server into Single Binary
-echo "🚀 Compiling Single Binary (macOS)..."
 mkdir -p dist
-bun build ./apps/server/src/index.ts --compile --outfile dist/toolhub-macos
 
-echo "🚀 Compiling Single Binary (Linux)..."
-# Note: To compile for Linux from Mac, you might need a container or a Linux environment.
-# But for now, we'll provide the command.
-# bun build ./apps/server/src/index.ts --compile --target bun-linux-x64 --outfile dist/toolhub-linux
+echo "🚀 Compiling for macOS (ARM64)..."
+bun build ./apps/server/src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/toolhub-macos
+
+echo "🚀 Compiling for Linux (x64)..."
+bun build ./apps/server/src/index.ts --compile --target=bun-linux-x64 --outfile dist/toolhub-linux
+
+echo "🚀 Compiling for Windows (x64)..."
+bun build ./apps/server/src/index.ts --compile --target=bun-windows-x64 --outfile dist/toolhub-win.exe
 
 echo ""
 echo "✅ Build Complete!"
