@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "incremental": true,
+    "resolveJsonModule": true,
     "types": ["bun-types"]
   },
   "include": ["src/**/*.ts"]

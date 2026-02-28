@@ -7,27 +7,49 @@ set -e
 
 echo "🚀 Installing ToolHub - The Ultimate Developer Control Center..."
 
-# Detect OS
+# Configuration
 OS="$(uname -s)"
-ARCH="$(uname -m)"
+REPO="giangittb112000/tool-hub"
+INSTALL_DIR="$HOME/.toolhub"
+BINARY_NAME="toolhub"
+BINARY_PATH="$INSTALL_DIR/$BINARY_NAME"
 
-echo " detected OS: $OS / $ARCH"
+mkdir -p "$INSTALL_DIR"
 
-# In a real scenario, this would curl a compiled binary from GitHub Releases
-# For development/monorepo, we'll build it locally using Bun
-echo "📦 Building ToolHub Single Binary..."
-export PATH="$HOME/.bun/bin:$PATH"
-cd "$(dirname "$0")/.."
-bun install
-bun build ./apps/server/src/index.ts --compile --outfile dist/toolhub
+if [ "$OS" = "Darwin" ]; then
+    DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/toolhub-macos"
+elif [ "$OS" = "Linux" ]; then
+    DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/toolhub-linux"
+else
+    echo "❌ OS not supported."
+    exit 1
+fi
 
-BINARY_PATH="$(pwd)/dist/toolhub"
+echo "📥 Downloading ToolHub binary..."
+curl -L "$DOWNLOAD_URL" -o "$BINARY_PATH"
+chmod +x "$BINARY_PATH"
 
-echo "✅ Build complete: $BINARY_PATH"
+# Setup PATH
+SHELL_CONFIG=""
+if [[ "$SHELL" == */zsh ]]; then
+    SHELL_CONFIG="$HOME/.zshrc"
+elif [[ "$SHELL" == */bash ]]; then
+    SHELL_CONFIG="$HOME/.bashrc"
+fi
+
+if [ -n "$SHELL_CONFIG" ]; then
+    if ! grep -q "$INSTALL_DIR" "$SHELL_CONFIG"; then
+        echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$SHELL_CONFIG"
+        echo "✅ Added $INSTALL_DIR to PATH in $SHELL_CONFIG"
+    fi
+fi
+
+echo "✅ Installation complete: $BINARY_PATH"
+echo "🚀 You can now run 'toolhub' from your terminal (you may need to restart your terminal)."
 
 if [ "$OS" = "Darwin" ]; then
   # macOS LaunchAgent setup
-  echo "🍎 Configuring Background Service for macOS (LaunchAgent)..."
+  echo "🍎 Configuring Background Service for macOS..."
   
   PLIST_DIR="$HOME/Library/LaunchAgents"
   PLIST_FILE="$PLIST_DIR/dev.toolhub.daemon.plist"
@@ -49,27 +71,17 @@ if [ "$OS" = "Darwin" ]; then
     <true/>
     <key>KeepAlive</key>
     <true/>
-    <key>StandardErrorPath</key>
-    <string>$HOME/Library/Logs/toolhub.err.log</string>
-    <key>StandardOutPath</key>
-    <string>$HOME/Library/Logs/toolhub.out.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>RUN_AS_SERVICE</key>
+        <string>true</string>
+    </dict>
 </dict>
 </plist>
 EOF
 
-  # Unload if it already exists, then load
-  launchctl unload "$PLIST_FILE" 2>/dev/null || true
-  launchctl load "$PLIST_FILE"
-  
-  echo "🎉 ToolHub is now running in the background!"
-  echo "👉 Access the Web UI at: http://localhost:3001"
-
-elif [ "$OS" = "Linux" ]; then
-    # Assuming Systemd for Linux
-    echo "🐧 Configuring Background Service for Linux (Systemd)..."
-    # To be implemented
-    echo "Systemd setup not yet fully implemented in this stub."
-else
-  echo "⚠️ OS not officially supported for auto-background service yet."
-  echo "You can run it manually: $BINARY_PATH"
+  # We don't load it automatically - user must run 'toolhub start'
+  echo "🎉 ToolHub installed successfully!"
+  echo "⚠️ Status: Stopped"
+  echo "👉 To start the service, run: toolhub start"
 fi

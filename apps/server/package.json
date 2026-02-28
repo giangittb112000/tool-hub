@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "bun run src/index.ts",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "RUN_AS_SERVICE=true bun run --watch src/index.ts"
   },
   "dependencies": {
     "@toolhub/shared": "workspace:*",
