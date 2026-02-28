@@ -1,0 +1,16 @@
+{
+  "name": "@toolhub/server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@toolhub/shared": "workspace:*",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "^1.3.9"
+  }
+}
