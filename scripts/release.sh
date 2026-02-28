@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ToolHub Release Script
-# Use this script to build the single binary for distribution.
+# Builds frontend + backend into distributable packages.
 
 set -e
 
@@ -20,44 +20,67 @@ if ! bun run --filter "@toolhub/client" build; then
     exit 1
 fi
 
-# 2. Compile Server and Package assets
+# Verify frontend build output exists
+if [ ! -f "apps/client/dist/index.html" ]; then
+    echo "❌ Frontend build output not found at apps/client/dist/"
+    exit 1
+fi
+
+# 2. Compile Server Binaries
 echo "🚀 Compiling Server..."
 bun build ./apps/server/src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/toolhub-macos-bin
 bun build ./apps/server/src/index.ts --compile --target=bun-linux-x64 --outfile dist/toolhub-linux-bin
-bun build ./apps/server/src/index.ts --compile --target=bun-windows-x64 --outfile dist/toolhub-win.exe
+bun build ./apps/server/src/index.ts --compile --target=bun-windows-x64 --outfile dist/toolhub-win-bin.exe
 
+# 3. Create Platform Packages (binary + frontend assets)
 echo "📦 Creating platform packages..."
+
 # macOS package
-mkdir -p dist/macos/public
-cp -r apps/client/dist/* dist/macos/public/
-cp dist/toolhub-macos-bin dist/macos/toolhub
-cd dist/macos && tar -czf ../toolhub-macos.tar.gz . && cd ../..
+mkdir -p dist/pkg-macos/public
+cp -r apps/client/dist/* dist/pkg-macos/public/
+cp dist/toolhub-macos-bin dist/pkg-macos/toolhub
+cd dist/pkg-macos && tar -czf ../toolhub-macos.tar.gz . && cd ../..
 
 # Linux package
-mkdir -p dist/linux/public
-cp -r apps/client/dist/* dist/linux/public/
-cp dist/toolhub-linux-bin dist/linux/toolhub
-cd dist/linux && tar -czf ../toolhub-linux.tar.gz . && cd ../..
+mkdir -p dist/pkg-linux/public
+cp -r apps/client/dist/* dist/pkg-linux/public/
+cp dist/toolhub-linux-bin dist/pkg-linux/toolhub
+cd dist/pkg-linux && tar -czf ../toolhub-linux.tar.gz . && cd ../..
 
 # Windows package
-mkdir -p dist/windows/public
-cp -r apps/client/dist/* dist/windows/public/
-cp dist/toolhub-win.exe dist/windows/toolhub.exe
-cd dist/windows && zip -r ../toolhub-win.zip . && cd ../..
+mkdir -p dist/pkg-windows/public
+cp -r apps/client/dist/* dist/pkg-windows/public/
+cp dist/toolhub-win-bin.exe dist/pkg-windows/toolhub.exe
+cd dist/pkg-windows && zip -rq ../toolhub-win.zip . && cd ../..
 
-# Validation
-if [[ ! -f "dist/toolhub-macos.tar.gz" || ! -f "dist/toolhub-linux.tar.gz" || ! -f "dist/toolhub-win.zip" ]]; then
-    echo "❌ One or more packages are missing in dist/!"
+# 4. Validation
+echo ""
+echo "🔍 Validating packages..."
+
+FAIL=0
+for PKG in "dist/toolhub-macos.tar.gz" "dist/toolhub-linux.tar.gz" "dist/toolhub-win.zip"; do
+    if [ -f "$PKG" ]; then
+        SIZE=$(du -h "$PKG" | cut -f1)
+        echo "  ✅ $PKG ($SIZE)"
+    else
+        echo "  ❌ MISSING: $PKG"
+        FAIL=1
+    fi
+done
+
+if [ "$FAIL" -eq 1 ]; then
+    echo ""
+    echo "❌ Build failed! Some packages are missing."
     exit 1
 fi
 
 echo ""
-echo "✅ Build Complete!"
-echo "Next steps:"
-echo "1. Go to your GitHub repository: https://github.com/giangittb112000/tool-hub"
-echo "2. Create a new Release (e.g., tag v1.0.0)."
-echo "3. Upload the file: dist/toolhub-macos"
-echo "4. Name the asset exactly: toolhub-macos"
-echo "5. Publish the release."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Build Complete! Ready for release."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "Then, users can install it using the one-liner in README.md!"
+echo "Upload these 3 files to GitHub Release:"
+echo "  📦 dist/toolhub-macos.tar.gz"
+echo "  📦 dist/toolhub-linux.tar.gz"
+echo "  📦 dist/toolhub-win.zip"
+echo ""
