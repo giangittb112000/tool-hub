@@ -20,19 +20,34 @@ if ! bun run --filter "@toolhub/client" build; then
     exit 1
 fi
 
-# 2. Compile Server into Single Binary
-echo "🚀 Compiling for macOS (ARM64)..."
-bun build ./apps/server/src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/toolhub-macos
-
-echo "🚀 Compiling for Linux (x64)..."
-bun build ./apps/server/src/index.ts --compile --target=bun-linux-x64 --outfile dist/toolhub-linux
-
-echo "🚀 Compiling for Windows (x64)..."
+# 2. Compile Server and Package assets
+echo "🚀 Compiling Server..."
+bun build ./apps/server/src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/toolhub-macos-bin
+bun build ./apps/server/src/index.ts --compile --target=bun-linux-x64 --outfile dist/toolhub-linux-bin
 bun build ./apps/server/src/index.ts --compile --target=bun-windows-x64 --outfile dist/toolhub-win.exe
 
+echo "📦 Creating platform packages..."
+# macOS package
+mkdir -p dist/macos/public
+cp -r apps/client/dist/* dist/macos/public/
+cp dist/toolhub-macos-bin dist/macos/toolhub
+cd dist/macos && tar -czf ../toolhub-macos.tar.gz . && cd ../..
+
+# Linux package
+mkdir -p dist/linux/public
+cp -r apps/client/dist/* dist/linux/public/
+cp dist/toolhub-linux-bin dist/linux/toolhub
+cd dist/linux && tar -czf ../toolhub-linux.tar.gz . && cd ../..
+
+# Windows package
+mkdir -p dist/windows/public
+cp -r apps/client/dist/* dist/windows/public/
+cp dist/toolhub-win.exe dist/windows/toolhub.exe
+cd dist/windows && zip -r ../toolhub-win.zip . && cd ../..
+
 # Validation
-if [[ ! -f "dist/toolhub-macos" || ! -f "dist/toolhub-linux" || ! -f "dist/toolhub-win.exe" ]]; then
-    echo "❌ One or more binaries are missing in dist/!"
+if [[ ! -f "dist/toolhub-macos.tar.gz" || ! -f "dist/toolhub-linux.tar.gz" || ! -f "dist/toolhub-win.zip" ]]; then
+    echo "❌ One or more packages are missing in dist/!"
     exit 1
 fi
 
