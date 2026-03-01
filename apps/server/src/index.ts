@@ -70,15 +70,10 @@ const cliCommands: Record<string, () => Promise<void>> = {
     }
   },
   update: async () => {
-    console.log("🚀 Updating ToolHub...");
-    try {
-      const { stdout } = await execAsync(
-        `curl -fsSL "https://raw.githubusercontent.com/giangittb112000/tool-hub/main/scripts/install.sh?t=$(date +%s)" | bash`,
-      );
-      console.log(stdout);
-    } catch (err) {
-      console.error("❌ Update failed:", err);
-    }
+    console.log("🚀 To update ToolHub, run:");
+    console.log("");
+    console.log("   npm update -g @giangnt112000/toolhub-cli");
+    console.log("");
   },
 };
 

@@ -1,0 +1,39 @@
+{
+  "name": "@giangnt112000/toolhub-cli",
+  "version": "1.0.11",
+  "description": "ToolHub - The Ultimate Developer Control Center. System monitor, JSON formatter, and more for developers.",
+  "bin": {
+    "toolhub": "./bin/run.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "files": [
+    "bin/",
+    "scripts/",
+    "vendor/",
+    "README.md"
+  ],
+  "keywords": [
+    "toolhub",
+    "developer-tools",
+    "system-monitor",
+    "json-formatter",
+    "dev-tools",
+    "cli"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giangittb112000/tool-hub"
+  },
+  "homepage": "https://github.com/giangittb112000/tool-hub#readme",
+  "engines": {
+    "node": ">=18"
+  }
+}

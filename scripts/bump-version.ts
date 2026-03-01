@@ -9,6 +9,7 @@ const packagePaths = [
   join(rootDir, "apps/server/package.json"),
   join(rootDir, "apps/client/package.json"),
   join(rootDir, "packages/shared/package.json"),
+  join(rootDir, "packages/cli/package.json"),
 ];
 
 function bump(version: string, type: string) {

@@ -10,7 +10,7 @@ TYPE=${1:-patch}
 
 echo "🎯 Starting ToolHub Publish Process ($TYPE)..."
 
-# 2. Bump version across all package.json files
+# 2. Bump version across all package.json files (including packages/cli)
 echo "🔢 Bumping version..."
 bun run scripts/bump-version.ts $TYPE
 
@@ -43,13 +43,19 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✅ SUCCESS: Version $TAG has been pushed to GitHub!"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "👉 FINAL STEP: You need to MANUALLY upload the binary."
 echo ""
-echo "1. Open: https://github.com/giangittb112000/tool-hub/releases/new?tag=$TAG"
-echo "2. Title: ToolHub $TAG"
-echo "3. DRAG & DROP these files from 'dist/' folder:"
-echo "   - toolhub-macos.tar.gz  (for Mac users)"
-echo "   - toolhub-linux.tar.gz  (for Linux users)"
-echo "   - toolhub-win.zip       (for Windows users)"
-echo "4. Click 'Publish release'"
+echo "👉 REMAINING STEPS (in order):"
+echo ""
+echo "  Step 1️⃣  Upload assets to GitHub Release:"
+echo "    1. Open: https://github.com/giangittb112000/tool-hub/releases/new?tag=$TAG"
+echo "    2. Title: ToolHub $TAG"
+echo "    3. DRAG & DROP these files from 'dist/' folder:"
+echo "       - toolhub-macos.tar.gz  (for Mac users)"
+echo "       - toolhub-linux.tar.gz  (for Linux users)"
+echo "       - toolhub-win.zip       (for Windows users)"
+echo "    4. Click 'Publish release'"
+echo ""
+echo "  Step 2️⃣  Publish to NPM (AFTER GitHub Release is done):"
+echo "    cd packages/cli && npm publish --access public"
+echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
