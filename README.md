@@ -2,6 +2,8 @@
 
 ToolHub là một nền tảng quản lý quy trình phát triển phần mềm (Developer Workflow Monitor) chạy native trên macOS và Windows. Ứng dụng cung cấp một giao diện Web UI hiện đại để theo dõi và quản lý các công cụ, dịch vụ và cấu hình hệ thống một cách tập trung.
 
+![ToolHub Dashboard](./docs/images/dashboard.png)
+
 ---
 
 ## 🎯 1. Về ToolHub (About)
