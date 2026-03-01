@@ -6,6 +6,7 @@ import { registry } from "./core/registry";
 import { testModule } from "./modules/test/module";
 import { systemMonitorModule } from "./modules/system-monitor/module";
 import { systemModule } from "./modules/system/module";
+import { jsonFormatterModule } from "./modules/json-formatter/module";
 
 // @ts-ignore
 import pkg from "../../../package.json";
@@ -160,6 +161,7 @@ const MIME_TYPES: Record<string, string> = {
 registry.register(systemModule);
 registry.register(testModule);
 registry.register(systemMonitorModule);
+registry.register(jsonFormatterModule);
 
 const startCore = async () => {
   await registry.initAll({

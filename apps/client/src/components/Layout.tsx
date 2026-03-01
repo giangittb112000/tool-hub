@@ -79,7 +79,7 @@ export function Layout({ children }: LayoutProps) {
         {/* Top Glow Background */}
         <div className="absolute top-0 left-1/4 w-1/2 h-64 bg-orange-500/10 blur-[120px] pointer-events-none rounded-full"></div>
 
-        <div className="p-6 md:p-12 max-w-7xl mx-auto relative z-10">
+        <div className="p-6 md:p-12 max-w-full mx-auto relative z-10">
           {children}
         </div>
       </main>

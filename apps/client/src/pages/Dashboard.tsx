@@ -3,6 +3,7 @@ import {
   Globe,
   Shield,
   Terminal,
+  Braces,
   RefreshCw,
   Github,
   Copy,
@@ -28,7 +29,7 @@ export function Dashboard() {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/system/version")
+    fetch("/api/system/version")
       .then((res) => res.json())
       .then((data) => setVersion(data.version))
       .catch(() => setVersion("Offline"));
@@ -37,7 +38,7 @@ export function Dashboard() {
   const handleCheckUpdate = async () => {
     setIsUpdating(true);
     try {
-      const res = await fetch("http://localhost:3001/api/system/check-update");
+      const res = await fetch("/api/system/check-update");
       const data = await res.json();
       setUpdateInfo(data);
 
@@ -98,6 +99,15 @@ export function Dashboard() {
       icon: Terminal,
       status: "Stopped" as const,
       path: "/modules/mock",
+      color: "emerald",
+    },
+    {
+      id: "module-json-formatter",
+      name: "JSON Formatter",
+      description: "Beautify, validate & compare JSON with multi-tab support.",
+      icon: Braces,
+      status: "Running" as const,
+      path: "/modules/json-formatter",
       color: "emerald",
     },
   ];

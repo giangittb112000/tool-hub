@@ -1,7 +1,7 @@
 {
   "name": "@toolhub/client",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,8 @@
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-json-view-lite": "^2.5.0",
+    "react-resizable-panels": "^4.7.0",
     "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
