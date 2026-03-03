@@ -35,6 +35,26 @@ Tuy nhiên, `src/components/` có vai trò khác với thư mục này. `src/com
 4. Mở file thư mục Root `src/App.tsx` và thêm `<Route>` cho trang của bạn. Đảm bảo cấu hình đường dẫn (path) như `/modules/module-name`.
 5. Tạo thẻ điều hướng ở Dashboard page nếu cần (`src/pages/Dashboard.tsx`).
 
+### 4. **Quản lý Constants & API URL**
+
+Để giữ cho code sạch sẽ và dễ bảo trì, tuyệt đối **không hard-code** các URL server (như `http://localhost:3001`) trực tiếp trong các file module.
+
+Thay vào đó, hãy sử dụng các biến từ:
+`src/constants/index.ts`
+
+- `SERVER_URL`: Gốc của server (mặc định port 3001).
+- `API_BASE`: Tiền tố cho các API (`/api`).
+- `MOCK_BASE`: Tiền tố cho Mock API (`/mock`).
+
+**Ví dụ sử dụng:**
+
+```tsx
+import { API_BASE } from "../../../constants";
+
+// Khi fetch
+fetch(`${API_BASE}/my-module/data`);
+```
+
 ---
 
 [⬅ Về lại gốc dự án](../../../../../README.md)

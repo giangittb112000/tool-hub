@@ -4,6 +4,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { SystemMonitor } from "./pages/modules/system-monitor";
 import { JsonFormatter } from "./pages/modules/json-formatter";
 import { ModulePlaceholder } from "./components/ModulePlaceholder";
+import { MockApi } from "./pages/modules/mock-api";
 
 import { ToastProvider } from "./components/ui/Toast";
 
@@ -24,10 +25,7 @@ function App() {
               path="/modules/proxy"
               element={<ModulePlaceholder title="Reverse Proxy" />}
             />
-            <Route
-              path="/modules/mock"
-              element={<ModulePlaceholder title="Mock API" />}
-            />
+            <Route path="/modules/mock" element={<MockApi />} />
             <Route
               path="/console"
               element={<ModulePlaceholder title="System Console" />}

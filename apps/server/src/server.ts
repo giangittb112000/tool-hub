@@ -7,6 +7,7 @@ import { testModule } from "./modules/test/module";
 import { systemMonitorModule } from "./modules/system-monitor/module";
 import { systemModule } from "./modules/system/module";
 import { jsonFormatterModule } from "./modules/json-formatter/module";
+import { mockApiModule } from "./modules/mock-api/module";
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html",
@@ -55,6 +56,7 @@ export function createServer(version: string, port: number) {
   registry.register(testModule);
   registry.register(systemMonitorModule);
   registry.register(jsonFormatterModule);
+  registry.register(mockApiModule);
 
   const start = async () => {
     await registry.initAll({

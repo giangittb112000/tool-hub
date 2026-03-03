@@ -1,6 +1,6 @@
 {
   "name": "@giangnt112000/toolhub-cli",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "ToolHub - The Ultimate Developer Control Center. System monitor, JSON formatter, and more for developers.",
   "bin": {
     "toolhub": "./bin/run.js"

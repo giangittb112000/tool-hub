@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, Cpu, HardDrive, Zap, Globe, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { API_BASE } from "../../../constants";
 
 interface CoreInfo {
   model: string;
@@ -34,7 +35,7 @@ export function SystemMonitor() {
 
   useEffect(() => {
     const fetchStats = () => {
-      fetch("http://localhost:3001/api/system/stats")
+      fetch(`${API_BASE}/system/stats`)
         .then((r) => r.json())
         .then((d) => {
           setStats(d);

@@ -13,6 +13,7 @@ import { ModuleCard } from "../components/ModuleCard";
 import { useEffect, useState } from "react";
 import { Modal } from "../components/ui/Modal";
 import { useToast } from "../components/ui/Toast";
+import { API_BASE } from "../constants";
 
 export function Dashboard() {
   const [version, setVersion] = useState<string>("...");
@@ -29,7 +30,7 @@ export function Dashboard() {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/system/version")
+    fetch(`${API_BASE}/system/version`)
       .then((res) => res.json())
       .then((data) => setVersion(data.version))
       .catch(() => setVersion("Offline"));
@@ -38,7 +39,7 @@ export function Dashboard() {
   const handleCheckUpdate = async () => {
     setIsUpdating(true);
     try {
-      const res = await fetch("/api/system/check-update");
+      const res = await fetch(`${API_BASE}/system/check-update`);
       const data = await res.json();
       setUpdateInfo(data);
 
@@ -97,7 +98,7 @@ export function Dashboard() {
       name: "Mock API",
       description: "Create fake endpoints for frontend development testing.",
       icon: Terminal,
-      status: "Stopped" as const,
+      status: "Running" as const,
       path: "/modules/mock",
       color: "emerald",
     },
